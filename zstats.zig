@@ -2,7 +2,6 @@ const std = @import("std");
 const math = std.math;
 const Complex = std.math.Complex;
 
-
 const ElementType = @import("./helpers.zig").ElementType;
 const ValueType = @import("./helpers.zig").ValueType;
 
@@ -18,7 +17,7 @@ pub fn mean(comptime T: type, x: T) ElementType(T) {
             for (x) |xval| {
                 sum += xval;
             }
-            mu = sum / @intToFloat(R, x.len);
+            mu = sum / @as(R, @floatFromInt(x.len));
         },
 
         []Complex(f32), []Complex(f64) => {
@@ -28,8 +27,8 @@ pub fn mean(comptime T: type, x: T) ElementType(T) {
                 sum.re += xval.re;
                 sum.im += xval.im;
             }
-            mu.re = sum.re / @intToFloat(R, x.len);
-            mu.im = sum.im / @intToFloat(R, x.len);
+            mu.re = sum.re / @as(R, @floatFromInt(x.len));
+            mu.im = sum.im / @as(R, @floatFromInt(x.len));
         },
         else => {
             @compileError("type not implemented");
@@ -50,8 +49,8 @@ pub fn variance(comptime T: type, x: T) ValueType(T) {
                 sum1 += xval;
                 sum2 += xval * xval;
             }
-            var m1: T_elem = sum1 / @intToFloat(R, x.len);
-            var m2: T_elem = sum2 / @intToFloat(R, x.len);
+            var m1: T_elem = sum1 / @as(R, @floatFromInt(x.len));
+            var m2: T_elem = sum2 / @as(R, @floatFromInt(x.len));
 
             return m2 - m1 * m1;
         },
@@ -69,9 +68,9 @@ pub fn variance(comptime T: type, x: T) ValueType(T) {
                 sum2 += (xval.re * xval.re) + (xval.im * xval.im);
             }
 
-            m1.re = sum1.re / @intToFloat(R, x.len);
-            m1.im = sum1.im / @intToFloat(R, x.len);
-            m2 = sum2 / @intToFloat(R, x.len);
+            m1.re = sum1.re / @as(R, @floatFromInt(x.len));
+            m1.im = sum1.im / @as(R, @floatFromInt(x.len));
+            m2 = sum2 / @as(R, @floatFromInt(x.len));
 
             return m2 - ((m1.re * m1.re) + (m1.im * m1.im));
         },
@@ -93,8 +92,8 @@ pub fn mean_variance(comptime T: type, x: T, mu: *ElementType(T), sigma_sqr: *Va
                 sum1 += xval;
                 sum2 += xval * xval;
             }
-            var mu_tmp: T_elem = sum1 / @intToFloat(R, x.len);
-            var m2: T_elem = sum2 / @intToFloat(R, x.len);
+            var mu_tmp: T_elem = sum1 / @as(R, @floatFromInt(x.len));
+            var m2: T_elem = sum2 / @as(R, @floatFromInt(x.len));
 
             mu.* = mu_tmp;
             sigma_sqr.* = m2 - mu_tmp * mu_tmp;
@@ -113,9 +112,9 @@ pub fn mean_variance(comptime T: type, x: T, mu: *ElementType(T), sigma_sqr: *Va
                 sum2 += (xval.re * xval.re) + (xval.im * xval.im);
             }
 
-            mu_tmp.re = sum1.re / @intToFloat(R, x.len);
-            mu_tmp.im = sum1.im / @intToFloat(R, x.len);
-            m2 = sum2 / @intToFloat(R, x.len);
+            mu_tmp.re = sum1.re / @as(R, @floatFromInt(x.len));
+            mu_tmp.im = sum1.im / @as(R, @floatFromInt(x.len));
+            m2 = sum2 / @as(R, @floatFromInt(x.len));
 
             mu.* = mu_tmp;
             sigma_sqr.* = m2 - ((mu_tmp.re * mu_tmp.re) + (mu_tmp.im * mu_tmp.im));
@@ -125,7 +124,6 @@ pub fn mean_variance(comptime T: type, x: T, mu: *ElementType(T), sigma_sqr: *Va
         },
     }
 }
-
 
 const print = std.debug.print;
 const Allocator = std.mem.Allocator;
@@ -174,7 +172,6 @@ test "\t mean \t  complex array\n" {
     }
 }
 
-
 test "\t variance \t  real array\n" {
     inline for (.{ f32, f64 }) |T| {
         var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
@@ -215,7 +212,6 @@ test "\t variance \t  complex array\n" {
         try std.testing.expectApproxEqAbs(@as(T, 9.9375), v, eps);
     }
 }
-
 
 test "\t mean_variance \t real array\n" {
     inline for (.{ f32, f64 }) |T| {
@@ -267,4 +263,3 @@ test "\t mean_variance \t complex array\n" {
         try std.testing.expectApproxEqAbs(@as(T, 9.9375), sigma_sqr, eps);
     }
 }
-

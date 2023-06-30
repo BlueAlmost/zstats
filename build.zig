@@ -16,5 +16,6 @@ pub fn build(b: *std.build.Builder) void {
 
     const unit_tests_step = b.step("test", "Run unit tests");
     unit_tests_step.dependOn(&unit_tests.step);
+
 }
 
